@@ -1,0 +1,174 @@
+Description: >
+    Chaleamwat / nanodegree_cloud_devops 2020
+Parameters:
+
+    EnvironmentName:
+        Description: An environment name that will be prefixed to resources
+        Type: String
+
+    VpcCIDR:
+        Description: Please enter the IP range (CIDR notation) for this
+        Type: String
+        Default: 10.0.0.0/16
+
+    PublicSubnet1CIDR:
+        Description: Please enter the IP range (CIDR notation) for the Subnet
+        Type: String
+        Default: 10.0.0.0/24
+
+    PublicSubnet2CIDR:
+        Description: Please enter the IP range (CIDR notation) for the Subnet
+        Type: String
+        Default: 10.0.1.0/24
+
+    ClusterName:
+        Type: String
+        Description: The cluster name provided when the cluster was created. If it is incorrect, nodes will not be able to join the cluster.
+
+    NodeAutoScalingGroupDesiredCapacity:
+        Type: Number
+        Default: 3
+        Description: Desired capacity of Node Group ASG.
+
+    NodeAutoScalingGroupMaxSize:
+        Type: Number
+        Default: 4
+        Description: Maximum size of Node Group ASG. Set to at least 1 greater than NodeAutoScalingGroupDesiredCapacity.
+
+    NodeAutoScalingGroupMinSize:
+        Type: Number
+        Default: 2
+        Description: Minimum size of Node Group ASG.
+
+    NodeGroupName:
+        Type: String
+        Description: Unique identifier for the Node Group.
+
+    NodeImageId:
+        Type: String
+        Default: ""
+        Description: (Optional) Specify your own custom image ID. This value overrides any AWS Systems Manager Parameter Store value specified above.
+
+    NodeInstanceType:
+        Type: String
+        AllowedValues: [t2.medium, t3.small, t3.nano, t3.micro, t3.medium]
+
+    NodeVolumeSize:
+        Type: Number
+        Default: 20
+        Description: Node volume size
+
+
+Conditions:
+    HasNodeImageId: !Not
+        - "Fn::Equals":
+              - Ref: NodeImageId
+              - ""
+
+Resources:
+
+    VPC:
+        Type: AWS::EC2::VPC
+        Properties:
+            CidrBlock: !Ref VpcCIDR
+            EnableDnsHostnames: true
+            Tags:
+                - Key: Name
+                  Value: !Ref EnvironmentName
+
+    PublicSubnet1:
+        Type: AWS::EC2::Subnet
+        Properties:
+            VpcId: !Ref VPC
+            AvailabilityZone: !Select [ 0, !GetAZs '' ]
+            CidrBlock: !Ref PublicSubnet1CIDR
+            MapPublicIpOnLaunch: false
+            Tags:
+                - Key: Name
+                  Value: !Sub ${EnvironmentName} Public Subnet (AZ1)
+
+    PublicSubnet2:
+        Type: AWS::EC2::Subnet
+        Properties:
+            VpcId: !Ref VPC
+            AvailabilityZone: !Select [ 1, !GetAZs '' ]
+            CidrBlock: !Ref PublicSubnet2CIDR
+            MapPublicIpOnLaunch: false
+            Tags:
+                - Key: Name
+                  Value: !Sub ${EnvironmentName} Public Subnet (AZ2)
+
+    InternetGateway:
+        Type: AWS::EC2::InternetGateway
+
+    InternetGatewayAttachment:
+        Type:  AWS::EC2::VPCGatewayAttachment
+        Properties:
+            VpcId: !Ref VPC
+            InternetGatewayId: !Ref InternetGateway
+
+    PublicRouteTable:
+        Type: AWS::EC2::RouteTable
+        Properties:
+            VpcId: !Ref VPC
+            Tags:
+                -   Key: Name
+                    Value: !Sub ${EnvironmentName} Public Routes
+
+    DefaultPublicRoute:
+        Type: AWS::EC2::Route
+        DependsOn: InternetGatewayAttachment
+        Properties:
+            RouteTableId: !Ref PublicRouteTable
+            DestinationCidrBlock: 0.0.0.0/0
+            GatewayId: !Ref InternetGateway
+
+    PublicSubnet1RouteTableAssociation:
+        Type: AWS::EC2::SubnetRouteTableAssociation
+        Properties:
+            RouteTableId: !Ref PublicRouteTable
+            SubnetId: !Ref PublicSubnet1
+
+    PublicSubnet2RouteTableAssociation:
+        Type: AWS::EC2::SubnetRouteTableAssociation
+        Properties:
+            RouteTableId: !Ref PublicRouteTable
+            SubnetId: !Ref PublicSubnet2
+
+    ClusterControlPlaneSecurityGroup:
+        Type: AWS::EC2::SecurityGroup
+        Properties:
+            GroupDescription: Allow http and ssh to our infrastructure
+            VpcId: !Ref VPC
+            SecurityGroupIngress:
+                -   IpProtocol: tcp
+                    FromPort: 0
+                    ToPort: 65535
+                    CidrIp: 0.0.0.0/0
+            SecurityGroupEgress:
+                -   IpProtocol: tcp
+                    FromPort: 0
+                    ToPort: 65535
+                    CidrIp: 0.0.0.0/0
+
+    EKSCluster:
+        Type: AWS::EKS::Cluster
+        Properties:
+            Name: !Ref ClusterName
+            Version: '1.14'
+            RoleArn: arn:aws:iam::602075590708:role/eksClusterRole
+            ResourcesVpcConfig:
+                SecurityGroupIds:
+                    -   !Ref ClusterControlPlaneSecurityGroup
+                SubnetIds:
+                    -   !Ref PublicSubnet1
+                    -   !Ref PublicSubnet2
+
+
+Outputs:
+
+    VPC:
+        Description: A reference to the created VPC
+        Value: !Ref VPC
+        Export:
+            Name: !Sub ${EnvironmentName}-VPCID

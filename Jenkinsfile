@@ -1,18 +1,16 @@
 pipeline {
   agent any
   stages {
-    stage('Build') {
-      stage('Linting') {
+    stage('Linting') {
         sh 'echo "Hello World"'
-      }
-      stage('Build image') {
-      }
-      stage('Push image') {
-      }
-      stage('set current kubectl context') {
-      }
-      stage('Deploy container') {
-      }
+    }
+    stage('Build image') {
+    }
+    stage('Push image') {
+    }
+    stage('set current kubectl context') {
+    }
+    stage('Deploy container') {
     }
   }
 }

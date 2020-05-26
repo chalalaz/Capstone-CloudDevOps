@@ -1,5 +1,8 @@
 pipeline {
   agent any
+  environment {
+        DOCKER_IMAGE_NAME = "chalalaz/capstone"
+	}
   stages {
     stage('Linting') {
       steps {
@@ -8,7 +11,12 @@ pipeline {
     }
     stage('Build image') {
       steps {
-        sh 'echo "Build image"'
+        script {
+          app = docker.build(DOCKER_IMAGE_NAME)
+          app.inside {
+            sh 'echo Hello, Nginx!'
+          }
+        }
       }
     }
     stage('Push image') {

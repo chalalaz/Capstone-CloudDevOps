@@ -1,7 +1,9 @@
 pipeline {
   agent any
   environment {
-        DOCKER_IMAGE_NAME = "chalalaz/capstone"
+    DOCKER_IMAGE_NAME = "chalalaz/capstone"
+    registry = "chalalaz/capstone"
+    registryCredential = 'dockerhub'
 	}
   stages {
     stage('Linting') {
@@ -21,7 +23,10 @@ pipeline {
     }
     stage('Push image') {
       steps {
-        sh 'echo "Push image"'
+        script {
+          docker.withRegistry( '', registryCredential ) {
+          dockerImage.push()
+        }
       }
     }
     stage('set current kubectl context') {

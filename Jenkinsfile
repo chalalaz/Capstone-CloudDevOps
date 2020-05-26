@@ -3,7 +3,7 @@ pipeline {
   stages {
     stage('Linting') {
       steps {
-        sh 'echo "Linting check"'
+         sh 'tidy -q -e *.html'
       }
     }
     stage('Build image') {

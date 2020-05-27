@@ -14,8 +14,8 @@ pipeline {
     stage('Build image') {
       steps {
         script {
-          app = docker.build(DOCKER_IMAGE_NAME)
-          app.inside {
+          dockerImage = docker.build registry + ":$BUILD_NUMBER"
+          dockerImage.inside {
             sh 'echo Hello, Nginx!'
           }
         }

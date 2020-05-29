@@ -1,0 +1,22 @@
+[
+  {
+    "ParameterKey": "EnvironmentName",
+    "ParameterValue": "capstone-clouddevops"
+  },
+  {
+    "ParameterKey": "VpcBlock",
+    "ParameterValue": "10.0.0.0/16"
+  },
+  {
+    "ParameterKey": "EksClusterName",
+    "ParameterValue": "EKS-Infra"
+  },
+  {
+    "ParameterKey": "EksRoleName",
+    "ParameterValue": "eks-infra-role"
+  },
+  {
+    "ParameterKey": "EksNodesRoleName",
+    "ParameterValue": "eks-infra-nodegroup-role"
+  }
+]

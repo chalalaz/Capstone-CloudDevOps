@@ -36,7 +36,7 @@ pipeline {
     stage('Deploy container') {
       steps {
         withAWS(credentials: 'eks-admin', region: 'ap-southeast-1') {
-          sh "aws eks --region ap-southeast-1 update-kubeconfig --name EKS-Infra"
+          sh "aws eks --region ap-southeast-1 update-kubeconfig --name EKS-Capstone"
           sh "kubectl apply -f ./aws/aws-auth-cm.yaml"
           sh 'kubectl apply -f ./src/green-controller.yml'
         }

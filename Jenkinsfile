@@ -23,7 +23,6 @@ pipeline {
           docker.withRegistry( '', registryCredential ) {
             dockerImage.push()
             dockerImage.push("latest")
-            sh 'docker rmi '
           }
         }
       }

@@ -40,7 +40,7 @@ pipeline {
           sh "kubectl apply -f ./aws/aws-auth-cm.yaml"
           sh "kubectl apply -f ./src/green-controller.yml"
           sh "kubectl apply -f ./src/green-service.yml"
-          URL_GREEN = sh "kubectl get service bluegreenlb --output=jsonpath=\"{.status.loadBalancer.ingress[0]['hostname','ip']}\""
+          def URL_GREEN = sh "kubectl get service bluegreenlb --output=jsonpath=\"{.status.loadBalancer.ingress[0]['hostname','ip']}\""
         }
       }
     }
@@ -48,7 +48,7 @@ pipeline {
       steps {
         script {
           try {
-            new URL("$URL_GREEN:8000").getText()
+            new URL("${URL_GREEN}:8000").getText()
             return true
           } catch (Exception e) {
             return false

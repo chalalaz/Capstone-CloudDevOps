@@ -40,6 +40,8 @@ pipeline {
           sh "kubectl apply -f ./aws/aws-auth-cm.yaml"
           sh "kubectl apply -f ./src/green-controller.yml"
           sh "kubectl apply -f ./src/green-service.yml"
+        }
+        script {
           sh "kubectl get service bluegreenlb --output=jsonpath=\"{.status.loadBalancer.ingress[0]['hostname','ip']}\""
         }
       }
@@ -48,7 +50,7 @@ pipeline {
       steps {
         script {
           try {
-            new URL("http://a3d5d8c14a28b11ea8875025489a51de-866573044.ap-southeast-1.elb.amazonaws.com:8000").getText()
+            new URL("http://a3d5d8c14a28b11ea8875025489a51de-866573044.ap-southeast-1.elb.amazonaws.com:8001").getText()
             return true
           } catch (Exception e) {
             return false

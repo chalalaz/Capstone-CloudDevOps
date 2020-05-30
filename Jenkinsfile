@@ -46,7 +46,7 @@ pipeline {
     stage('Green deployment Testing') {
       steps {
         withAWS(credentials: 'eks-admin', region: 'ap-southeast-1') {
-          Url_green = kubectl get service bluegreenlb --output=jsonpath="{.status.loadBalancer.ingress[0]['hostname','ip']}"
+          Url_green = sh "kubectl get service bluegreenlb --output=jsonpath='{.status.loadBalancer.ingress[0]['hostname','ip']}'"
           try {
             new URL("$Url_green:8000").getText()
             return true

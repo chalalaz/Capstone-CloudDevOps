@@ -36,7 +36,7 @@ pipeline {
     stage('Deploy container') {
       steps {
         withAWS(credentials: 'eks-admin', region: 'ap-southeast-1') {
-          sh 'bash ./src/run_k8s_green_controller.sh'
+          sh 'kubectl apply -f ./src/green-controller.yml'
         }
       }
     }

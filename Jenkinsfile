@@ -35,7 +35,9 @@ pipeline {
     }
     stage('Deploy container') {
       steps {
-        sh 'kubectl apply -f ./src/green-controller.yml'
+        withAWS(credentials: 'aws-credentials', region: 'ap-southeast-1') {
+          sh 'aws iam get-user'
+        }
       }
     }
     stage('redirect to green') {

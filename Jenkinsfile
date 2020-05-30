@@ -36,7 +36,7 @@ pipeline {
     stage('Deploy container') {
       steps {
         withAWS(credentials: 'eks-admin', region: 'ap-southeast-1') {
-          sh 'kubectl apply -f ./src/green-controller.yml'
+          sh 'sudo kubectl apply -f ./src/green-controller.yml'
         }
       }
     }

@@ -35,7 +35,7 @@ pipeline {
     }
     stage('Deploy container') {
       steps {
-        sh './src/run_k8s_green_controller.sh'
+        sh 'bash ./src/run_k8s_green_controller.sh'
       }
     }
     stage('redirect to green') {

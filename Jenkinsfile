@@ -36,13 +36,15 @@ pipeline {
     stage('Deploy container') {
       steps {
         withAWS(credentials: 'eks-admin', region: 'ap-southeast-1') {
-          sh 'aws iam get-user'
+          sh 'bash ./src/run_k8s_green_controller.sh'
         }
       }
     }
     stage('redirect to green') {
       steps {
-        sh 'kubectl apply -f ./src/green-service.yml'
+        withAWS(credentials: 'eks-admin', region: 'ap-southeast-1') {
+          sh 'kubectl apply -f ./src/green-service.yml'
+        }
       }
     }
   }

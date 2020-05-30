@@ -35,7 +35,7 @@ pipeline {
     }
     stage('Deploy container') {
       steps {
-        withAWS(credentials: 'aws-credentials', region: 'ap-southeast-1') {
+        withAWS(credentials: 'eks-admin', region: 'ap-southeast-1') {
           sh 'aws iam get-user'
         }
       }

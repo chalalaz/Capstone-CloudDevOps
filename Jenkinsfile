@@ -40,9 +40,7 @@ pipeline {
           sh "kubectl apply -f ./aws/aws-auth-cm.yaml"
           sh "kubectl apply -f ./src/green-controller.yml"
           sh "kubectl apply -f ./src/green-service.yml"
-          URL_GREEN = sh '''
-          kubectl get service bluegreenlb --output=jsonpath="{.status.loadBalancer.ingress[0]['hostname','ip']}"
-          '''
+          URL_GREEN = sh 'kubectl get service bluegreenlb --output=jsonpath="{.status.loadBalancer.ingress[0][\'hostname\',\'ip\']}"'
         }
       }
     }

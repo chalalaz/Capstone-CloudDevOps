@@ -3,6 +3,7 @@ pipeline {
   environment {
     registry = "chalalaz/capstone"
     registryCredential = 'dockerhub'
+    GREENURL = ''
 	}
   stages {
     stage('Linting') {
@@ -40,9 +41,7 @@ pipeline {
           sh "kubectl apply -f ./aws/aws-auth-cm.yaml"
           sh "kubectl apply -f ./src/green-controller.yml"
           sh "kubectl apply -f ./src/green-service.yml"
-        }
-        script {
-          sh "kubectl get service bluegreenlb --output=jsonpath=\"{.status.loadBalancer.ingress[0]['hostname','ip']}\""
+          GREENURL = sh "kubectl get service bluegreenlb --output=jsonpath=\"{.status.loadBalancer.ingress[0]['hostname','ip']}\""
         }
       }
     }

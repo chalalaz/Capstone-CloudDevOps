@@ -33,14 +33,14 @@ pipeline {
         sh "docker rmi $registry:latest"
       }
     }
-    stage('set current kubectl context') {
-      steps {
-        sh 'echo "set current kube"'
-      }
-    }
     stage('Deploy container') {
       steps {
-        sh 'echo "Deploy container"'
+        sh 'kubectl apply -f green-controller.json'
+      }
+    }
+    stage('redirect to green') {
+      steps {
+        sh 'kubectl apply -f blue-green-service.json'
       }
     }
   }

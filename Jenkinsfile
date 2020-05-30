@@ -39,13 +39,20 @@ pipeline {
           sh "aws eks --region ap-southeast-1 update-kubeconfig --name EKS-Capstone"
           sh "kubectl apply -f ./aws/aws-auth-cm.yaml"
           sh 'kubectl apply -f ./src/green-controller.yml'
+          sh 'kubectl apply -f ./src/green-service.yml'
         }
       }
     }
-    stage('redirect to green') {
+    stage('Green deployment Testing') {
       steps {
         withAWS(credentials: 'eks-admin', region: 'ap-southeast-1') {
-          sh 'kubectl apply -f ./src/green-service.yml'
+          Url_green = kubectl get service bluegreenlb --output=jsonpath="{.status.loadBalancer.ingress[0]['hostname','ip']}"
+          try {
+            new URL("$Url_green:8000").getText()
+            return true
+          } catch (Exception e) {
+            return false
+          }
         }
       }
     }

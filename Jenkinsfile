@@ -23,8 +23,15 @@ pipeline {
           docker.withRegistry( '', registryCredential ) {
             dockerImage.push()
             dockerImage.push("latest")
+            sh 'docker rmi '
           }
         }
+      }
+    }
+    stage('Remove Unused docker image') {
+      steps{
+        sh "docker rmi $registry:$BUILD_NUMBER"
+        sh "docker rmi $registry:latest"
       }
     }
     stage('set current kubectl context') {

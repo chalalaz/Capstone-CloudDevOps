@@ -35,12 +35,12 @@ pipeline {
     }
     stage('Deploy container') {
       steps {
-        sh 'bash ./src/run_k8s_green_controller.sh'
+        sh 'kubectl apply -f ./src/green-controller.yml'
       }
     }
     stage('redirect to green') {
       steps {
-        sh 'kubectl apply -f ./src/green-service.json'
+        sh 'kubectl apply -f ./src/green-service.yml'
       }
     }
   }

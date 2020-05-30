@@ -1,7 +1,6 @@
 pipeline {
   agent any
   environment {
-    DOCKER_IMAGE_NAME = "chalalaz/capstone"
     registry = "chalalaz/capstone"
     registryCredential = 'dockerhub'
 	}
@@ -15,17 +14,15 @@ pipeline {
       steps {
         script {
           dockerImage = docker.build registry + ":$BUILD_NUMBER"
-          dockerImage.inside {
-            sh 'echo Hello, Nginx!'
-          }
         }
       }
     }
     stage('Push image') {
       steps {
         script {
-          docker.withRegistry( 'https://registry.hub.docker.com', registryCredential ) {
+          docker.withRegistry( '', registryCredential ) {
             dockerImage.push()
+            dockerImage.push("latest")
           }
         }
       }

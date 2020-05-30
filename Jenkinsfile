@@ -40,7 +40,7 @@ pipeline {
           sh "kubectl apply -f ./aws/aws-auth-cm.yaml"
           sh "kubectl apply -f ./src/green-controller.yml"
           sh "kubectl apply -f ./src/green-service.yml"
-          URL_GREEN = ./aws/get_url.sh
+          URL_GREEN = sh "./aws/get_url.sh"
         }
       }
     }

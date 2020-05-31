@@ -15,8 +15,8 @@ pipeline {
     stage('Build image') {
       steps {
         script {
-          echo "pwd"
           blueImage = docker.build("${blue}:$BUILD_NUMBER", "./source/blue/")
+          greenImage = docker.build("${green}:$BUILD_NUMBER", "./source/green/")
         }
       }
     }

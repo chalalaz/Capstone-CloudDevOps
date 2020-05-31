@@ -75,7 +75,7 @@ pipeline {
         input "Ready to deploy blue service?"
       }
     }
-    stage('Deploy green service') {
+    stage('Deploy blue service') {
       steps {
         withAWS(credentials: 'eks-admin', region: 'ap-southeast-1') {
           sh "kubectl apply -f ./aws/k8s-script/blue-service.yml"

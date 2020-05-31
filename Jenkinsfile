@@ -49,9 +49,9 @@ pipeline {
         }
       }
     }
-    stage('Wait user approve for bule deployment') {
+    stage('Wait user approve for green deployment') {
       steps {
-        input "Ready to deploy blue?"
+        input "Ready to deploy blue controller?"
       }
     }
     stage('Deploy green service') {
@@ -64,13 +64,11 @@ pipeline {
     stage('Deploy blue controller') {
       steps {
         withAWS(credentials: 'eks-admin', region: 'ap-southeast-1') {
-          sh "kubectl apply -f ./aws/k8s-script/green-service.yml"
-          sh "kubectl apply -f ./aws/aws-auth-cm.yaml"
           sh "kubectl apply -f ./aws/k8s-script/blue-controller.yml"
         }
       }
     }
-    stage('Wait user approve for green deployment') {
+    stage('Wait user approve for blue deployment') {
       steps {
         input "Ready to deploy blue service?"
       }

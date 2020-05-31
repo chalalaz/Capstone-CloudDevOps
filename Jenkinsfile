@@ -41,10 +41,9 @@ pipeline {
           sh "kubectl apply -f ./aws/aws-auth-cm.yaml"
           sh "kubectl apply -f ./src/green-controller.yml"
           sh "kubectl apply -f ./src/green-service.yml"
-          environment {
-            GREENURL = sh "kubectl get service bluegreenlb --output=jsonpath=\"{.status.loadBalancer.ingress[0]['hostname','ip']}\""
-          }
         }
+        def GREENURL = withAWS(credentials: 'eks-admin', region: 'ap-southeast-1') {
+          sh "kubectl get service bluegreenlb --output=jsonpath=\"{.status.loadBalancer.ingress[0]['hostname','ip']}\""
       }
     }
     stage('Green deployment Testing') {

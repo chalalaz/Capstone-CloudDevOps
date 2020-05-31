@@ -49,7 +49,7 @@ pipeline {
         }
       }
     }
-    stage('Wait user approve') {
+    stage('Wait user approve for bule deployment') {
       steps {
         input "Ready to deploy blue?"
       }
@@ -70,7 +70,7 @@ pipeline {
         }
       }
     }
-    stage('Wait user approve') {
+    stage('Wait user approve for green deployment') {
       steps {
         input "Ready to deploy blue service?"
       }

@@ -1,20 +1,22 @@
 pipeline {
   agent any
   environment {
-    registry = "chalalaz/capstone"
+    blue = "chalalaz/blue"
+    green = "chalalaz/green"
     registryCredential = 'dockerhub'
-    GREENURL = ''
 	}
   stages {
     stage('Linting') {
       steps {
-         sh 'tidy -q -e *.html'
+         sh 'tidy -q -e source/blue/*.html'
+         sh 'tidy -q -e source/green/*.html'
       }
     }
     stage('Build image') {
       steps {
         script {
-          dockerImage = docker.build registry + ":$BUILD_NUMBER"
+          blueImage = docker.build blue + ":$BUILD_NUMBER"
+          greenImage = docker.build green + ":$BUILD_NUMBER"
         }
       }
     }
@@ -22,31 +24,62 @@ pipeline {
       steps {
         script {
           docker.withRegistry( '', registryCredential ) {
-            dockerImage.push()
-            dockerImage.push("latest")
+            blueImage.push()
+            blueImage.push("latest")
+            greenImage.push()
+            greenImage.push("latest")
           }
         }
       }
     }
     stage('Remove Unused docker image') {
       steps{
-        sh "docker rmi $registry:$BUILD_NUMBER"
-        sh "docker rmi $registry:latest"
+        sh "docker rmi $blue:$BUILD_NUMBER"
+        sh "docker rmi $blue:latest"
+        sh "docker rmi $green:$BUILD_NUMBER"
+        sh "docker rmi $green:latest"
       }
     }
-    stage('Deploy container') {
+    stage('Deploy green controller') {
       steps {
         withAWS(credentials: 'eks-admin', region: 'ap-southeast-1') {
           sh "aws eks --region ap-southeast-1 update-kubeconfig --name EKS-Capstone"
           sh "kubectl apply -f ./aws/aws-auth-cm.yaml"
-          sh "kubectl apply -f ./src/green-controller.yml"
-          sh "kubectl apply -f ./src/green-service.yml"
+          sh "kubectl apply -f ./aws/k8s-script/green-controller.yml"
         }
       }
     }
     stage('Wait user approve') {
       steps {
-        input "Ready to redirect traffic to green?"
+        input "Ready to deploy blue?"
+      }
+    }
+    stage('Deploy green service') {
+      steps {
+        withAWS(credentials: 'eks-admin', region: 'ap-southeast-1') {
+          sh "kubectl apply -f ./aws/k8s-script/green-service.yml"
+        }
+      }
+    }
+    stage('Deploy blue controller') {
+      steps {
+        withAWS(credentials: 'eks-admin', region: 'ap-southeast-1') {
+          sh "kubectl apply -f ./aws/k8s-script/green-service.yml"
+          sh "kubectl apply -f ./aws/aws-auth-cm.yaml"
+          sh "kubectl apply -f ./aws/k8s-script/blue-controller.yml"
+        }
+      }
+    }
+    stage('Wait user approve') {
+      steps {
+        input "Ready to deploy blue service?"
+      }
+    }
+    stage('Deploy green service') {
+      steps {
+        withAWS(credentials: 'eks-admin', region: 'ap-southeast-1') {
+          sh "kubectl apply -f ./aws/k8s-script/blue-service.yml"
+        }
       }
     }
   }

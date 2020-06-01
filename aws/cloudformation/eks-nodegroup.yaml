@@ -550,8 +550,11 @@ Resources:
           PropagateAtLaunch: true
           Value: owned
       VPCZoneIdentifier:
-        Fn::ImportValue:
-          !Sub "${EnvironmentName}-SubnetIds"
+        - Fn::ImportValue:
+            !Sub "${EnvironmentName}-PUB1-SN"
+        - Fn::ImportValue:
+            !Sub "${EnvironmentName}-PUB2-SN"
+        
     UpdatePolicy:
       AutoScalingRollingUpdate:
         MaxBatchSize: 1

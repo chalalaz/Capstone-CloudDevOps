@@ -140,11 +140,17 @@ Outputs:
   SubnetIds:
     Description: your subnets
     Value: !Join [ ",", [ !Ref Subnet01, !Ref Subnet02, !Ref Subnet03 ] ]
+    Export:
+      Name: !Sub ${EnvironmentName}-SubnetIds
 
   SecurityGroups:
     Description: SecGroup for communication betw controlplane and workernodes
     Value: !Join [ ",", [ !Ref ControlPlaneSecurityGroup ] ]
+    Export:
+      Name: !Sub ${EnvironmentName}-SecurityGroups
 
   VpcId:
     Description: The VPC Id
     Value: !Ref VPC
+    Export:
+      Name: !Sub ${EnvironmentName}-VPCID

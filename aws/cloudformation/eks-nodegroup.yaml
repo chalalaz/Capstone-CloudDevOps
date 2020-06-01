@@ -7,6 +7,7 @@ Parameters:
   KeyName:
     Description: The EC2 Key Pair to allow SSH access to the instances
     Type: AWS::EC2::KeyPair::KeyName
+    Default: capstone-cloud
 
   NodeImageId:
     Type: AWS::EC2::Image::Id
@@ -129,18 +130,6 @@ Parameters:
     Description: Unique identifier for the Node Group.
     Type: String
 
-  ClusterControlPlaneSecurityGroup:
-    Description: The security group of the cluster control plane.
-    Type: AWS::EC2::SecurityGroup::Id
-
-  VpcId:
-    Description: The VPC of the worker instances
-    Type: AWS::EC2::VPC::Id
-
-  Subnets:
-    Description: The subnets where workers can be created.
-    Type: List<AWS::EC2::Subnet::Id>
-
 Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
@@ -201,7 +190,8 @@ Resources:
     Properties:
       GroupDescription: Security group for all nodes in the cluster
       VpcId:
-        !Ref VpcId
+        Fn::ImportValue:
+          !Sub "${EnvironmentName}-VPCID"
       Tags:
       - Key: !Sub "kubernetes.io/cluster/${ClusterName}"
         Value: 'owned'
@@ -223,7 +213,9 @@ Resources:
     Properties:
       Description: Allow worker Kubelets and pods to receive communication from the cluster control plane
       GroupId: !Ref NodeSecurityGroup
-      SourceSecurityGroupId: !Ref ClusterControlPlaneSecurityGroup
+      SourceSecurityGroupId:
+        Fn::ImportValue:
+          !Sub "${EnvironmentName}-SecurityGroups"
       IpProtocol: tcp
       FromPort: 1025
       ToPort: 65535
@@ -233,7 +225,9 @@ Resources:
     DependsOn: NodeSecurityGroup
     Properties:
       Description: Allow the cluster control plane to communicate with worker Kubelet and pods
-      GroupId: !Ref ClusterControlPlaneSecurityGroup
+      GroupId:
+        Fn::ImportValue:
+          !Sub "${EnvironmentName}-SecurityGroups"
       DestinationSecurityGroupId: !Ref NodeSecurityGroup
       IpProtocol: tcp
       FromPort: 1025
@@ -245,7 +239,9 @@ Resources:
     Properties:
       Description: Allow pods running extension API servers on port 443 to receive communication from cluster control plane
       GroupId: !Ref NodeSecurityGroup
-      SourceSecurityGroupId: !Ref ClusterControlPlaneSecurityGroup
+      SourceSecurityGroupId:
+        Fn::ImportValue:
+          !Sub "${EnvironmentName}-SecurityGroups"
       IpProtocol: tcp
       FromPort: 443
       ToPort: 443
@@ -255,7 +251,9 @@ Resources:
     DependsOn: NodeSecurityGroup
     Properties:
       Description: Allow the cluster control plane to communicate with pods running extension API servers on port 443
-      GroupId: !Ref ClusterControlPlaneSecurityGroup
+      GroupId:
+        Fn::ImportValue:
+          !Sub "${EnvironmentName}-SecurityGroups"
       DestinationSecurityGroupId: !Ref NodeSecurityGroup
       IpProtocol: tcp
       FromPort: 443
@@ -266,7 +264,9 @@ Resources:
     DependsOn: NodeSecurityGroup
     Properties:
       Description: Allow pods to communicate with the cluster API Server
-      GroupId: !Ref ClusterControlPlaneSecurityGroup
+      GroupId:
+        Fn::ImportValue:
+          !Sub "${EnvironmentName}-SecurityGroups"
       SourceSecurityGroupId: !Ref NodeSecurityGroup
       IpProtocol: tcp
       ToPort: 443
@@ -280,7 +280,8 @@ Resources:
       MinSize: !Ref NodeAutoScalingGroupMinSize
       MaxSize: !Ref NodeAutoScalingGroupMaxSize
       VPCZoneIdentifier:
-        !Ref Subnets
+        Fn::ImportValue:
+          !Sub "${EnvironmentName}-SubnetIds"
       Tags:
       - Key: Name
         Value: !Sub "${ClusterName}-${NodeGroupName}-Node"

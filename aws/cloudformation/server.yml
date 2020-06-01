@@ -277,57 +277,60 @@ Resources:
             SourceSecurityGroupId: !Ref ClusterControlPlaneSecurityGroup
             ToPort: 443
 
-    NodeLaunchConfig:
-        Type: AWS::AutoScaling::LaunchConfiguration
-        Properties:
-            AssociatePublicIpAddress: "true"
-            BlockDeviceMappings:
-                -   DeviceName: /dev/xvda
-                    Ebs:
-                        DeleteOnTermination: true
-                        VolumeSize: !Ref NodeVolumeSize
-                        VolumeType: gp2
-            IamInstanceProfile: !Ref NodeInstanceProfile
-            ImageId: !If
-                - HasNodeImageId
-                -   Ref: NodeImageId
-                -   Ref: NodeImageIdSSMParam
-            InstanceType: !Ref NodeInstanceType
-            SecurityGroups:
-                -   Ref: NodeSecurityGroup
-            UserData: !Base64
-                "Fn::Sub": |
-                    #!/bin/bash
-                    set -o xtrace
-                    /etc/eks/bootstrap.sh ${ClusterName}
-                    /opt/aws/bin/cfn-signal --exit-code $? \
-                             --stack  ${AWS::StackName} \
-                             --resource NodeGroup  \
-                             --region ${AWS::Region}
+    NodeLaunchTemplate:
+      Type: "AWS::EC2::LaunchTemplate"
+      Properties:
+        LaunchTemplateData:
+          BlockDeviceMappings:
+            - DeviceName: /dev/xvda
+              Ebs:
+                DeleteOnTermination: true
+                VolumeSize: !Ref NodeVolumeSize
+                VolumeType: gp2
+          IamInstanceProfile:
+            Arn: !GetAtt NodeInstanceProfile.Arn
+          ImageId: !If
+            - HasNodeImageId
+            - Ref: NodeImageId
+            - Ref: NodeImageIdSSMParam
+          InstanceType: !Ref NodeInstanceType
+          KeyName: !Ref KeyName
+          SecurityGroupIds:
+          - Ref: NodeSecurityGroup
+          UserData: !Base64
+            "Fn::Sub": |
+              #!/bin/bash
+              set -o xtrace
+              /etc/eks/bootstrap.sh ${ClusterName} ${BootstrapArguments}
+              /opt/aws/bin/cfn-signal --exit-code $? \
+                       --stack  ${AWS::StackName} \
+                       --resource NodeGroup  \
+                       --region ${AWS::Region}
+          MetadataOptions:
+            "HttpPutResponseHopLimit" : 2
 
-    NodeAutoScalingGroup:
-        Type: AWS::AutoScaling::AutoScalingGroup
-        Properties:
-            DesiredCapacity: !Ref NodeAutoScalingGroupDesiredCapacity
-            LaunchConfigurationName: !Ref NodeLaunchConfig
-            MaxSize: !Ref NodeAutoScalingGroupMaxSize
-            MinSize: !Ref NodeAutoScalingGroupMinSize
-            Tags:
-                -   Key: Name
-                    PropagateAtLaunch: "true"
-                    Value: !Sub ${ClusterName}-${NodeGroupName}-Node
-                -   Key: !Sub kubernetes.io/cluster/${ClusterName}
-                    PropagateAtLaunch: "true"
-                    Value: owned
-            VPCZoneIdentifier:
-                - !Ref PublicSubnet1
-                - !Ref PublicSubnet2
-        UpdatePolicy:
-            AutoScalingRollingUpdate:
-                MaxBatchSize: "1"
-                MinInstancesInService: !Ref NodeAutoScalingGroupDesiredCapacity
-                PauseTime: PT5M
-
+    NodeGroup:
+      Type: "AWS::AutoScaling::AutoScalingGroup"
+      Properties:
+        DesiredCapacity: !Ref NodeAutoScalingGroupDesiredCapacity
+        LaunchTemplate:
+          LaunchTemplateId: !Ref NodeLaunchTemplate
+          Version: !GetAtt NodeLaunchTemplate.LatestVersionNumber
+        MaxSize: !Ref NodeAutoScalingGroupMaxSize
+        MinSize: !Ref NodeAutoScalingGroupMinSize
+        Tags:
+          - Key: Name
+            PropagateAtLaunch: true
+            Value: !Sub ${ClusterName}-${NodeGroupName}-Node
+          - Key: !Sub kubernetes.io/cluster/${ClusterName}
+            PropagateAtLaunch: true
+            Value: owned
+        VPCZoneIdentifier: !Ref Subnets
+      UpdatePolicy:
+        AutoScalingRollingUpdate:
+          MaxBatchSize: 1
+          MinInstancesInService: !Ref NodeAutoScalingGroupDesiredCapacity
+          PauseTime: PT5M
 Outputs:
 
     VPC:

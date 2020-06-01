@@ -1,5 +1,33 @@
 Description: >
     Cloud DevOps Nanodegree Capstone
+
+Metadata:
+  "AWS::CloudFormation::Interface":
+    ParameterGroups:
+      - Label:
+          default: EKS Cluster
+        Parameters:
+          - ClusterName
+          - ClusterControlPlaneSecurityGroup
+      - Label:
+          default: Worker Node Configuration
+        Parameters:
+          - NodeGroupName
+          - NodeAutoScalingGroupMinSize
+          - NodeAutoScalingGroupDesiredCapacity
+          - NodeAutoScalingGroupMaxSize
+          - NodeInstanceType
+          - NodeImageIdSSMParam
+          - NodeImageId
+          - NodeVolumeSize
+          - KeyName
+          - BootstrapArguments
+      - Label:
+          default: Worker Network Configuration
+        Parameters:
+          - VpcId
+          - Subnets
+
 Parameters:
 
     EnvironmentName:
@@ -68,6 +96,22 @@ Parameters:
         Default: 20
         Description: Node volume size
 
+    VpcId:
+        Type: "AWS::EC2::VPC::Id"
+        Description: The VPC of the worker instances
+
+Mappings:
+    PartitionMap:
+        aws:
+            EC2ServicePrincipal: "ec2.amazonaws.com"
+        aws-us-gov:
+            EC2ServicePrincipal: "ec2.amazonaws.com"
+        aws-cn:
+            EC2ServicePrincipal: "ec2.amazonaws.com.cn"
+        aws-iso:
+            EC2ServicePrincipal: "ec2.c2s.ic.gov"
+        aws-iso-b:
+            EC2ServicePrincipal: "ec2.sc2s.sgov.gov"
 
 Conditions:
     HasNodeImageId: !Not
@@ -175,44 +219,41 @@ Resources:
                     -   !Ref PublicSubnet2
 
     NodeInstanceRole:
-        Type: AWS::IAM::Role
+        Type: "AWS::IAM::Role"
         Properties:
-            RoleName:
-              !Sub ${EnvironmentName}-Role
             AssumeRolePolicyDocument:
                 Version: "2012-10-17"
                 Statement:
                     -   Effect: Allow
                         Principal:
                             Service:
-                                - ec2.amazonaws.com
+                                -   !FindInMap [PartitionMap, !Ref "AWS::Partition", EC2ServicePrincipal]
                         Action:
-                            - "sts:AssumeRole"
+                            -   "sts:AssumeRole"
             ManagedPolicyArns:
-                - "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
-                - "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
-                - "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+              - !Sub "arn:${AWS::Partition}:iam::aws:policy/AmazonEKSWorkerNodePolicy"
+              - !Sub "arn:${AWS::Partition}:iam::aws:policy/AmazonEKS_CNI_Policy"
+              - !Sub "arn:${AWS::Partition}:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
             Path: /
 
     NodeInstanceProfile:
-        Type: AWS::IAM::InstanceProfile
+        Type: "AWS::IAM::InstanceProfile"
         Properties:
             Path: /
             Roles:
                 -   Ref: NodeInstanceRole
 
     NodeSecurityGroup:
-        Type: AWS::EC2::SecurityGroup
+        Type: "AWS::EC2::SecurityGroup"
         Properties:
             GroupDescription: Security group for all nodes in the cluster
             Tags:
                 -   Key: !Sub kubernetes.io/cluster/${ClusterName}
                     Value: owned
-            VpcId: !Ref VPC
-
+            VpcId: !Ref VpcId
 
     NodeSecurityGroupIngress:
-        Type: AWS::EC2::SecurityGroupIngress
+        Type: "AWS::EC2::SecurityGroupIngress"
         DependsOn: NodeSecurityGroup
         Properties:
             Description: Allow node to communicate with each other
@@ -223,7 +264,7 @@ Resources:
             ToPort: 65535
 
     ClusterControlPlaneSecurityGroupIngress:
-        Type: AWS::EC2::SecurityGroupIngress
+        Type: "AWS::EC2::SecurityGroupIngress"
         DependsOn: NodeSecurityGroup
         Properties:
             Description: Allow pods to communicate with the cluster API Server
@@ -234,7 +275,7 @@ Resources:
             ToPort: 443
 
     ControlPlaneEgressToNodeSecurityGroup:
-        Type: AWS::EC2::SecurityGroupEgress
+        Type: "AWS::EC2::SecurityGroupEgress"
         DependsOn: NodeSecurityGroup
         Properties:
             Description: Allow the cluster control plane to communicate with worker Kubelet and pods
@@ -245,7 +286,7 @@ Resources:
             ToPort: 65535
 
     ControlPlaneEgressToNodeSecurityGroupOn443:
-        Type: AWS::EC2::SecurityGroupEgress
+        Type: "AWS::EC2::SecurityGroupEgress"
         DependsOn: NodeSecurityGroup
         Properties:
             Description: Allow the cluster control plane to communicate with pods running extension API servers on port 443
@@ -256,7 +297,7 @@ Resources:
             ToPort: 443
 
     NodeSecurityGroupFromControlPlaneIngress:
-        Type: AWS::EC2::SecurityGroupIngress
+        Type: "AWS::EC2::SecurityGroupIngress"
         DependsOn: NodeSecurityGroup
         Properties:
             Description: Allow worker Kubelets and pods to receive communication from the cluster control plane
@@ -267,7 +308,7 @@ Resources:
             ToPort: 65535
 
     NodeSecurityGroupFromControlPlaneOn443Ingress:
-        Type: AWS::EC2::SecurityGroupIngress
+        Type: "AWS::EC2::SecurityGroupIngress"
         DependsOn: NodeSecurityGroup
         Properties:
             Description: Allow pods running extension API servers on port 443 to receive communication from cluster control plane
@@ -282,17 +323,17 @@ Resources:
         Properties:
             LaunchTemplateData:
                 BlockDeviceMappings:
-                    - DeviceName: /dev/xvda
-                      Ebs:
-                        DeleteOnTermination: true
-                        VolumeSize: !Ref NodeVolumeSize
-                        VolumeType: gp2
+                    -   DeviceName: /dev/xvda
+                        Ebs:
+                            DeleteOnTermination: true
+                            VolumeSize: !Ref NodeVolumeSize
+                            VolumeType: gp2
                 IamInstanceProfile:
                     Arn: !GetAtt NodeInstanceProfile.Arn
                 ImageId: !If
-                    - HasNodeImageId
-                    - Ref: NodeImageId
-                    - Ref: NodeImageIdSSMParam
+                    -   HasNodeImageId
+                    -   Ref: NodeImageId
+                    -   Ref: NodeImageIdSSMParam
                 InstanceType: !Ref NodeInstanceType
                 KeyName: !Ref KeyName
                 SecurityGroupIds:
@@ -303,9 +344,9 @@ Resources:
                         set -o xtrace
                         /etc/eks/bootstrap.sh ${ClusterName} ${BootstrapArguments}
                         /opt/aws/bin/cfn-signal --exit-code $? \
-                                 --stack  ${AWS::StackName} \
-                                 --resource NodeGroup  \
-                                 --region ${AWS::Region}
+                                --stack  ${AWS::StackName} \
+                                --resource NodeGroup  \
+                                --region ${AWS::Region}
                 MetadataOptions:
                     "HttpPutResponseHopLimit" : 2
 
@@ -319,18 +360,21 @@ Resources:
             MaxSize: !Ref NodeAutoScalingGroupMaxSize
             MinSize: !Ref NodeAutoScalingGroupMinSize
             Tags:
-                - Key: Name
-                  PropagateAtLaunch: true
-                  Value: !Sub ${ClusterName}-${NodeGroupName}-Node
-                - Key: !Sub kubernetes.io/cluster/${ClusterName}
-                  PropagateAtLaunch: true
-                  Value: owned
-            VPCZoneIdentifier: !Ref Subnets
+                -   Key: Name
+                    PropagateAtLaunch: true
+                    Value: !Sub ${ClusterName}-${NodeGroupName}-Node
+                -   Key: !Sub kubernetes.io/cluster/${ClusterName}
+                    PropagateAtLaunch: true
+                    Value: owned
+            VPCZoneIdentifier:
+                -   !Ref PublicSubnet1
+                -   !Ref PublicSubnet2
         UpdatePolicy:
             AutoScalingRollingUpdate:
                 MaxBatchSize: 1
                 MinInstancesInService: !Ref NodeAutoScalingGroupDesiredCapacity
                 PauseTime: PT5M
+
 Outputs:
 
     VPC:

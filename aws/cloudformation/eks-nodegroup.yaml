@@ -4,6 +4,11 @@ Description: 'Amazon EKS - Node Group'
 
 Parameters:
 
+  EnvironmentName:
+    Description: An environment name that will be prefixed to resource names
+    Type: String
+    Default: eks-capstone
+    
   KeyName:
     Description: The EC2 Key Pair to allow SSH access to the instances
     Type: AWS::EC2::KeyPair::KeyName

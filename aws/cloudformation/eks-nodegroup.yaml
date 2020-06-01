@@ -129,6 +129,7 @@ Parameters:
   NodeGroupName:
     Description: Unique identifier for the Node Group.
     Type: String
+    Default: eks-capstone-nodes
 
 Metadata:
   AWS::CloudFormation::Interface:

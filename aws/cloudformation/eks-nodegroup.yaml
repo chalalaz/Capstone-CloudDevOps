@@ -379,7 +379,7 @@ Resources:
         Properties:
             Name: !Ref ClusterName
             Version: '1.14'
-            RoleArn: arn:aws:iam::674721641730:role/EKSDevOps
+            RoleArn: arn:aws:iam::602075590708:role/k8s-role
             ResourcesVpcConfig:
                 SecurityGroupIds:
                     - Fn::ImportValue:

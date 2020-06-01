@@ -69,6 +69,7 @@ Parameters:
   NodeGroupName:
     Type: String
     Description: Unique identifier for the Node Group.
+    Default: EKS-Capstone-nodes
 
   NodeImageId:
     Type: String

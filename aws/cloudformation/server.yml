@@ -299,13 +299,13 @@ Resources:
                 - Ref: NodeSecurityGroup
                 UserData: !Base64
                     "Fn::Sub": |
-                    #!/bin/bash
-                      set -o xtrace
-                      /etc/eks/bootstrap.sh ${ClusterName} ${BootstrapArguments}
-                      /opt/aws/bin/cfn-signal --exit-code $? \
-                               --stack  ${AWS::StackName} \
-                               --resource NodeGroup  \
-                               --region ${AWS::Region}
+                        #!/bin/bash
+                        set -o xtrace
+                        /etc/eks/bootstrap.sh ${ClusterName} ${BootstrapArguments}
+                        /opt/aws/bin/cfn-signal --exit-code $? \
+                                 --stack  ${AWS::StackName} \
+                                 --resource NodeGroup  \
+                                 --region ${AWS::Region}
                 MetadataOptions:
                     "HttpPutResponseHopLimit" : 2
 

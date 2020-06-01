@@ -382,7 +382,8 @@ Resources:
             RoleArn: arn:aws:iam::674721641730:role/EKSDevOps
             ResourcesVpcConfig:
                 SecurityGroupIds:
-                    -   !Ref ClusterControlPlaneSecurityGroup
+                    - Fn::ImportValue:
+                        !Sub "${EnvironmentName}-SecurityGroups"
                 SubnetIds:
                     - Fn::ImportValue:
                         !Sub "${EnvironmentName}-PUB1-SN"

@@ -374,6 +374,20 @@ Conditions:
         - ""
 
 Resources:
+  EKSCluster:
+        Type: AWS::EKS::Cluster
+        Properties:
+            Name: !Ref ClusterName
+            Version: '1.14'
+            RoleArn: arn:aws:iam::674721641730:role/EKSDevOps
+            ResourcesVpcConfig:
+                SecurityGroupIds:
+                    -   !Ref ClusterControlPlaneSecurityGroup
+                SubnetIds:
+                    - Fn::ImportValue:
+                        !Sub "${EnvironmentName}-PUB1-SN"
+                    - Fn::ImportValue:
+                        !Sub "${EnvironmentName}-PUB2-SN"
   NodeInstanceRole:
     Type: "AWS::IAM::Role"
     Properties:

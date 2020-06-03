@@ -11,12 +11,12 @@ Parameters:
   EksClusterName:
     Type: String
     Description: The of the EKS cluster to be created
-    Default: "EKS-Infra"
+    Default: "EKS-Capstone"
 
   EksRoleName:
     Type: String
     Description: The role to be created for the EKS cluster
-    Default: "eks-infra-role"
+    Default: "k8s-role"
 
   EksNodesRoleName:
     Type: String

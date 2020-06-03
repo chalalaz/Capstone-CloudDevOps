@@ -63,7 +63,7 @@ Parameters:
 
   NodeAutoScalingGroupMinSize:
     Type: Number
-    Default: 1
+    Default: 2
     Description: Minimum size of Node Group ASG.
 
   NodeGroupName:
@@ -554,7 +554,7 @@ Resources:
             !Sub "${EnvironmentName}-PUB1-SN"
         - Fn::ImportValue:
             !Sub "${EnvironmentName}-PUB2-SN"
-        
+
     UpdatePolicy:
       AutoScalingRollingUpdate:
         MaxBatchSize: 1

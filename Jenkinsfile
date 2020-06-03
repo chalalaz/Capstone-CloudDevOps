@@ -46,6 +46,8 @@ pipeline {
           sh "aws eks --region ap-southeast-1 update-kubeconfig --name EKS-Capstone"
           sh "kubectl apply -f ./aws/aws-auth-cm.yaml"
           sh "kubectl apply -f ./aws/k8s-script/green-controller.yml"
+          sh "kubectl get pods"
+          sh "kubectl describe pod green"
         }
       }
     }
@@ -58,6 +60,8 @@ pipeline {
       steps {
         withAWS(credentials: 'eks-admin', region: 'ap-southeast-1') {
           sh "kubectl apply -f ./aws/k8s-script/green-service.yml"
+          sh "kubectl get service"
+          sh "kubectl describe service bluegreenlb"
         }
       }
     }
@@ -65,6 +69,8 @@ pipeline {
       steps {
         withAWS(credentials: 'eks-admin', region: 'ap-southeast-1') {
           sh "kubectl apply -f ./aws/k8s-script/blue-controller.yml"
+          sh "kubectl get pods"
+          sh "kubectl describe pod blue"
         }
       }
     }
@@ -77,6 +83,7 @@ pipeline {
       steps {
         withAWS(credentials: 'eks-admin', region: 'ap-southeast-1') {
           sh "kubectl apply -f ./aws/k8s-script/blue-service.yml"
+          sh "kubectl describe service bluegreenlb"
         }
       }
     }

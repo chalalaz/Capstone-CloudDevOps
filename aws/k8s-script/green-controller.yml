@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: green
-        image: chalalaz/capstone
+        image: chalalaz/green
         ports:
         - name: http-server
           containerPort: 80

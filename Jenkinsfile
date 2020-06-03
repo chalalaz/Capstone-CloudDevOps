@@ -60,7 +60,7 @@ pipeline {
       steps {
         withAWS(credentials: 'eks-admin', region: 'ap-southeast-1') {
           sh "kubectl apply -f ./aws/k8s-script/green-service.yml"
-          sh "kubectl get service"
+          sh "kubectl get services"
           sh "kubectl describe service bluegreenlb"
         }
       }

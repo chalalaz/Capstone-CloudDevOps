@@ -16,7 +16,7 @@ Parameters:
   EksRoleName:
     Type: String
     Description: The role to be created for the EKS cluster
-    Default: "k8s-role"
+    Default: "eks-infra-role"
 
   EksNodesRoleName:
     Type: String

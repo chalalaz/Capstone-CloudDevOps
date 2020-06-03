@@ -9,7 +9,7 @@
   },
   {
     "ParameterKey": "EksRoleName",
-    "ParameterValue": "k8s-role"
+    "ParameterValue": "eks-infra-role"
   },
   {
     "ParameterKey": "EksNodesRoleName",

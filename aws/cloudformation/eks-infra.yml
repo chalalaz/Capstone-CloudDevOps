@@ -237,12 +237,12 @@ Resources:
       AmiType: AL2_x86_64
       ClusterName: !Ref EKS
       InstanceTypes:
-        - t2.micro
+        - t2.medium
       NodeRole: !GetAtt NodeRole.Arn
       ScalingConfig:
         DesiredSize: 2
-        MinSize: 2
-        MaxSize: 2
+        MinSize: 1
+        MaxSize: 4
       Subnets:
         - !Ref PrivateSubnet01
         - !Ref PrivateSubnet02

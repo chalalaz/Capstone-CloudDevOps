@@ -111,12 +111,21 @@ Resources:
       SubnetId: !Ref PublicSubnet02
       RouteTableId: !Ref PublicSubnetsRouteTable
 
-
   ControlPlaneSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Cluster communication with worker nodes
+      GroupDescription: Allow http and ssh to our infrastructure
       VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 0
+          ToPort: 65535
+          CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+        - IpProtocol: tcp
+          FromPort: 0
+          ToPort: 65535
+          CidrIp: 0.0.0.0/0
 
 #PrivateSubnet--------------------------------------------------
 
@@ -203,6 +212,8 @@ Resources:
     Properties:
       Name: !Ref EksClusterName
       ResourcesVpcConfig:
+        SecurityGroupIds:
+                    -   !Ref ControlPlaneSecurityGroup
         SubnetIds:
           - !Ref PrivateSubnet01
           - !Ref PrivateSubnet02

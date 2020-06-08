@@ -1,0 +1,62 @@
+[
+	{
+		"ParameterKey": "ClusterName",
+		"ParameterValue": "bulegreen"
+	},
+	{
+		"ParameterKey": "VpcBlock",
+		"ParameterValue": "192.168.0.0/16"
+	},
+  {
+		"ParameterKey": "Subnet01Block",
+		"ParameterValue": "192.168.64.0/18"
+	},
+	{
+		"ParameterKey": "Subnet02Block",
+		"ParameterValue": "192.168.128.0/18"
+	},
+	{
+		"ParameterKey": "Subnet03Block",
+		"ParameterValue": "192.168.192.0/18"
+	},
+	{
+		"ParameterKey": "NodeGroupName",
+		"ParameterValue": "bulegreenNodeGroup"
+	},
+	{
+		"ParameterKey": "BootstrapArguments",
+		"ParameterValue": ""
+	},
+	{
+		"ParameterKey": "KeyName",
+		"ParameterValue": "capstone-cloud"
+	},
+	{
+		"ParameterKey": "NodeAutoScalingGroupDesiredCapacity",
+		"ParameterValue": "3"
+	},
+	{
+		"ParameterKey": "NodeAutoScalingGroupMaxSize",
+		"ParameterValue": "4"
+	},
+	{
+		"ParameterKey": "NodeAutoScalingGroupMinSize",
+		"ParameterValue": "1"
+	},
+	{
+		"ParameterKey": "NodeImageId",
+		"ParameterValue": "ami-099e22010ae3a8ce5"
+	},
+	{
+		"ParameterKey": "NodeImageIdSSMParam",
+		"ParameterValue": "/aws/service/eks/optimized-ami/1.14/amazon-linux-2/recommended/image_id"
+	},
+	{
+		"ParameterKey": "NodeInstanceType",
+		"ParameterValue": "t3.medium"
+	},
+	{
+		"ParameterKey": "NodeVolumeSize",
+		"ParameterValue": "20"
+	}
+]

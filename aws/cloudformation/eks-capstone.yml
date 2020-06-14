@@ -4,6 +4,10 @@ Description: 'Amazon EKS Sample VPC'
 
 Parameters:
 
+  EnvironmentName:
+        Description: An environment name that will be prefixed to resources
+        Type: String
+
   VpcBlock:
     Type: String
     Default: 192.168.0.0/16
@@ -60,7 +64,7 @@ Parameters:
 
   NodeImageId:
     Type: String
-    Default: ami-099e22010ae3a8ce5
+    Default: ami-0632e180935e8d3b2
     Description: (Optional) Specify your own custom image ID. This value overrides any AWS Systems Manager Parameter Store value specified above.
 
   NodeImageIdSSMParam:
@@ -542,6 +546,8 @@ Resources:
   NodeInstanceRole:
     Type: "AWS::IAM::Role"
     Properties:
+      RoleName:
+              !Sub ${EnvironmentName}-Role
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:

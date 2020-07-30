@@ -43,7 +43,7 @@ pipeline {
     stage('Deploy green controller') {
       steps {
         withAWS(credentials: 'eks-admin', region: 'ap-southeast-1') {
-          sh "aws eks --region ap-southeast-1 update-kubeconfig --name EKS-Capstone"
+          sh "aws eks --region ap-southeast-1 update-kubeconfig --name EKS-capstone"
           sh "kubectl apply -f ./aws/aws-auth-cm.yaml"
           sh "kubectl apply -f ./aws/k8s-script/green-controller.yml"
           sh "kubectl get pods"

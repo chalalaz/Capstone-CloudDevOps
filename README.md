@@ -2,6 +2,9 @@
 
 This project is intended to set up a pipeline that allows us to lint the target code, build the correponding Docker container, and deploy it to a [kubernetes](https://kubernetes.io/) cluster. Blue/green deployment is also used.
 
+##AWS EKS - VPC
+![1.eks-diagram](/screenshots/1.eks-diagram.png)
+
 ## Table of Contents
 
 * [Project Overview](#project-overview)
@@ -33,19 +36,24 @@ In this section, it can be seen how the pipeline works as designed.
 
 ### Creating the Kubernetes cluster
 
-As a first previous step, the Kubernetes cluster is created, as can be seen below. Firstly, in the pipeline as a step which can be removed from the pipeline afterwards, but which has been included here for convenience. Secondly, in AWS CloudFormation. Finaly, in AWS Elastic Kubernetes Service.
+As a first previous step, the Kubernetes cluster is created.
 
-![0-KubernetesClusterCreation](/screenshots/0-KubernetesClusterCreation.png)
-![0-KubernetesClusterCreation2](/screenshots/0-KubernetesClusterCreation2.png)
-![0-KubernetesClusterCreation3](/screenshots/0-KubernetesClusterCreation3.png)
+![2.create-stack-cmd](/screenshots/2.create-stack-cmd.png)
+![3.console-stack-result](/screenshots/3.console-stack-result.png)
+![4.eks-console-active](/screenshots/4.eks-console-active.png)
+![5.eks-console-active2](/screenshots/5.eks-console-active2.png)
+![6.eks-console-nodegroup](/screenshots/6.eks-console-nodegroup.png)
+![7.eks-console-nodegroup2](/screenshots/7.eks-console-nodegroup2.png)
+![8.ec2-console](/screenshots/8.ec2-console.png)
+![9.eks-cluster-cmd](/screenshots/9.eks-cluster-cmd.png)
 
 ### Running the pipeline
 
 From now on, the pipeline itself is run, and its stages are shown below.
 
 * Test application code using linting. Below, both a failed Linting screenshot and a successful Linting screenshot are shown.
-![1-FailedLintingScreenshot](/screenshots/1-FailedLintingScreenshot.png)
-![2-SuccessfulLintingScreenshot](/screenshots/2-SuccessfulLintingScreenshot.png)
+![10.pipeline-linting1](/screenshots/10.pipeline-linting1.png)
+![11.pipeline-linting2](/screenshots/11.pipeline-linting2.png)
 * Build a Docker image that containerizes the application, a simple Nginx one.
 ![3-BuildtheDockerImage](/screenshots/3-BuildtheDockerImage.png)
 * Deploy the containerized application using Docker. Both the action in the pipeline and on DockerHub are shown.

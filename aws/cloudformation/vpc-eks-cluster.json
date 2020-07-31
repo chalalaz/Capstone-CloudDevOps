@@ -1,0 +1,34 @@
+[
+  {
+    "ParameterKey": "EnvironmentName",
+    "ParameterValue": "CloudDevOpsCapstone"
+  },
+  {
+    "ParameterKey": "VpcCIDR",
+    "ParameterValue": "10.0.0.0/16"
+  },
+  {
+    "ParameterKey": "PublicSubnet1CIDR",
+    "ParameterValue": "10.0.0.0/24"
+  },
+  {
+    "ParameterKey": "PublicSubnet2CIDR",
+    "ParameterValue": "10.0.1.0/24"
+  },
+  {
+    "ParameterKey": "NodeInstanceType",
+    "ParameterValue": "t3.medium"
+  },
+  {
+    "ParameterKey": "ClusterName",
+    "ParameterValue": "EKS-capstone"
+  },
+  {
+    "ParameterKey": "ClusterVersion",
+    "ParameterValue": "1.16"
+  },
+  {
+    "ParameterKey": "NodeGroupName",
+    "ParameterValue": "eks-nodegroup"
+  }
+]
